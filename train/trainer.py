@@ -16,7 +16,7 @@ now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
 root_logdir = "../records/tf_logs"
 logdir = "{}/run-{}/".format(root_logdir, now)
 
-data = pd.read_csv('../records/datasets/clean_batch_big.csv', dtype={'cactus':'float32', 'pterax':'float32', 'pteray':'float32', 'y':'int32'})
+data = pd.read_csv('../records/datasets/clean_batch_large.csv', dtype={'cactus':'float32', 'pterax':'float32', 'pteray':'float32', 'y':'int32'})
 #data['output'] = 2*data['isJumping'] + data['isDucking']
 #data[data['output'] > 2] = 2
 #train_cols = ['cactus1', 'cactus2', 'cactus3', 'ptera1x', 'ptera1y', 'ptera2x', 'ptera2y', 'ptera3x', 'ptera3y']
