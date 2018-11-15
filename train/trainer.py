@@ -6,19 +6,19 @@ from datetime import datetime
 n_vars = 3
 n_layer1 = 30
 n_layer2 = 10
-n_outputs = 2
+n_outputs = 3
 learning_rate = 0.01
 
-n_epochs = 2
+n_epochs = 4
 batch_size = 10
 
 now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
 root_logdir = "../records/tf_logs"
 logdir = "{}/run-{}/".format(root_logdir, now)
 
-data = pd.read_csv('../records/datasets/clean_batch_large.csv', dtype={'cactus':'float32', 'pterax':'float32', 'pteray':'float32', 'y':'int32'})
-#data['output'] = 2*data['isJumping'] + data['isDucking']
-#data[data['output'] > 2] = 2
+data = pd.read_csv('../records/datasets/clean_batch_large.csv', dtype={'cactus':'float32', 'pterax':'float32', 'pteray':'float32', 'isJumping':'int32', 'isDucking':'int32'})
+data['y'] = data['isDucking'] + 2*data['isJumping']
+data[data['y'] > 2] = 2
 #train_cols = ['cactus1', 'cactus2', 'cactus3', 'ptera1x', 'ptera1y', 'ptera2x', 'ptera2y', 'ptera3x', 'ptera3y']
 print(data.columns)
 features = ['cactus', 'pterax', 'pteray']
@@ -59,7 +59,8 @@ with tf.name_scope("optimization"):
     training_op = optimizer.minimize(loss)
 
 with tf.name_scope("evaluation"):
-    correct = tf.nn.in_top_k(logits, y, 1)
+    #correct = tf.nn.in_top_k(logits, y, 1)
+    correct = tf.equal(tf.argmax(logits, axis=1, output_type=tf.int32), y)
     accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
 
 with tf.name_scope("utils"):

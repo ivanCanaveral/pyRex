@@ -5,7 +5,7 @@ import json
 import pygame
 import random
 from pygame import *
-from time import time
+from time import time, sleep
 
 import numpy as np
 #import tensorflow as tf
@@ -40,6 +40,8 @@ background_col = (235,235,235)
 high_score = 0
 
 AUTOPILOT = True
+CONTINUOUS_PLAY = True
+REST_TIME = 60
 
 conn = TFServingConector()
 
@@ -287,14 +289,15 @@ def gameplay():
             status = []
             status.append(1 - (frameInfo['cactus1'] + 40)/680)
             status.append(1 - (frameInfo['ptera1x'] + 46)/688)
-            status.append((frameInfo['ptera1y'] - 95)/37)
+            status.append((frameInfo['ptera1y'] - 95)/45)
                 
-            status = sigmoid(status).tolist()
+            status[0:2] = sigmoid(status[0:2]).tolist()
                
-            autojump = np.argmax(json.loads(conn.post([status]))["predictions"])
-
             if AUTOPILOT:
-                playerDino.autopilot(autojump)
+                action = np.argmax(json.loads(conn.post([status]))["predictions"])
+                #print(action)
+                #print(conn.post([status]))
+                playerDino.autopilot(action)
 
         gamereg.save()
         print('saved!')
@@ -303,6 +306,9 @@ def gameplay():
             break
 
         while gameOver:
+            if CONTINUOUS_PLAY:
+                gameOver = False
+                gameplay()
             if pygame.display.get_surface() == None:
                 print("Couldn't load display surface")
                 gameQuit = True

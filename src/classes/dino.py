@@ -30,7 +30,8 @@ class Dino():
         self.movement = [0,0]
         self.jumpSpeed = 11.5
         self.last_instruction = 0
-        self.JUMP_ORDER = 1
+        self.JUMP_ORDER = 2
+        self.DUCK_ORDER = 1
 
         self.stand_pos_width = self.rect.width
         self.duck_pos_width = self.rect1.width
@@ -61,6 +62,10 @@ class Dino():
         if action != self.last_instruction:
             if action == self.JUMP_ORDER:
                 self.jump()
+            elif action == self.DUCK_ORDER:
+                self.duck()
+            else:
+                self.stand_up()
         self.last_instruction = action
         
     def check_collision(self, obj):

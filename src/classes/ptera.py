@@ -15,7 +15,7 @@ class Ptera(pygame.sprite.Sprite):
         self.scr_width = scr_size[0]
         self.scr_height = scr_size[1]
         self.images,self.rect = load_sprite_sheet('ptera.png',2,1,sizex,sizey,-1)
-        self.ptera_height = [self.scr_height*0.75,self.scr_height*0.75,self.scr_height*0.50]
+        self.ptera_height = [self.scr_height*0.80,self.scr_height*0.65,self.scr_height*0.50]
         self.rect.centery = self.ptera_height[random.randrange(0,3)]
         self.rect.left = self.scr_width + self.rect.width
         self.image = self.images[0]
