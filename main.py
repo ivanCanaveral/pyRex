@@ -307,6 +307,7 @@ def gameplay():
 
         while gameOver:
             if CONTINUOUS_PLAY:
+                sleep(REST_TIME)
                 gameOver = False
                 gameplay()
             if pygame.display.get_surface() == None:
