@@ -6,7 +6,7 @@ docker cp $(pwd)/models/trex serving_base:/models/trex
 # --change , -c Apply Dockerfile instruction to the created image
 # --message , -m		Commit message
 # --author , -a		Author (e.g., “John Hannibal Smith hannibal@a-team.com”)
-docker commit --change "ENV MODEL_NAME simple_model" serving_base ivancanaveral/trex:first
+docker commit --change "ENV MODEL_NAME trex" serving_base ivancanaveral/trex:first
 docker kill serving_base
 docker rm serving_base
 # to tag manually:
