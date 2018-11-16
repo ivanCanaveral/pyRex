@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tfserving-trex-pod
+  labels:
+    app: tfserving-trex
+spec:
+  containers:
+    - image: ivancanaveral/trex:first
+      name: tfserving-trex-container
+      ports:
+        - containerPort: 8501

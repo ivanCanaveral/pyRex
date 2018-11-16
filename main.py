@@ -40,8 +40,8 @@ background_col = (235,235,235)
 high_score = 0
 
 AUTOPILOT = True
-CONTINUOUS_PLAY = True
-REST_TIME = 60
+CONTINUOUS_PLAY = False
+REST_TIME = 0.5
 
 conn = TFServingConector()
 
