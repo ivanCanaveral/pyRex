@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tfserving-trex-deployment
+spec:
+  replicas: 2
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: tfserving-trex
+    spec:
+      containers:
+        - image: ivancanaveral/trex:first
+          imagePullPolicy: Always
+          name: tfserving-trex
+          ports:
+            - containerPort: 8501
