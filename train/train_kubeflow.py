@@ -32,12 +32,12 @@ print('data : {}'.format(X_train.shape))
 def main(_):
   tf_config_json = os.environ.get("TF_CONFIG", "{}")
   tf_config = json.loads(tf_config_json)
-
   task = tf_config.get("task", {})
   cluster_spec = tf_config.get("cluster", {})
   cluster = tf.train.ClusterSpec(cluster_spec)
   job_name = task["type"]
-  task_index = task["index"]
+  task_index = int(task["index"])
+  print('[{}:{}] Starting...'.format(job_name, task_index))
 
   #ps_hosts = FLAGS.ps_hosts.split(",")
   #worker_hosts = FLAGS.worker_hosts.split(",")
