@@ -5,22 +5,13 @@ FROM python:3.6
 # Only for local testing with docker
 ENV TF_CONFIG '{"cluster":{"master":["localhost:2220"],"ps":["localhost:2221"],"worker":["localhost:2222", "localhost:2223"]},"task":{"type":"ps","index":"0"},"environment":"cloud"}'
 
-ADD key.json /home/tensorflow
-
-ENV GOOGLE_APPLICATION_CREDENTIALS "/app/key.json"
-
 # Change directory
 WORKDIR /app
 
 # Installing dependencies with pip
 RUN pip3 install tensorflow numpy pandas
 
-RUN pip3 --no-cache-dir install \
-        google-cloud-storage \
-        && \
-    python3 -m ipykernel.kernelspec
-
 # Copy files
-ADD *.csv train_kubeflow.py /app/
+ADD *.csv train_kubeflow_save_gcs.py /app/
 
-CMD python3 train_kubeflow.py --gcs_path gcs://demo-dino2
+CMD python3 train_kubeflow_save_gcs.py
