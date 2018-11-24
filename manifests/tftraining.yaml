@@ -1,0 +1,26 @@
+apiVersion: kubeflow.org/v1alpha2
+kind: TFJob
+metadata:
+  name: two-workers-train
+spec:
+  tfReplicaSpecs:
+    Worker:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - image: ivancanaveral/train:kf_distributed
+            name: tensorflow
+            imagePullPolicy: Always
+          restartPolicy: OnFailure
+    Ps:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - image: ivancanaveral/train:kf_distributed
+            name: tensorflow
+            imagePullPolicy: Always
+            ports:
+            - containerPort: 6006
+          restartPolicy: OnFailure
