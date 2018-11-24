@@ -6,6 +6,32 @@ import json
 import pandas as pd
 import tensorflow as tf
 
+class SaveAtEnd(tf.train.SessionRunHook):
+  '''a training hook for saving the final variables'''
+
+  def __init__(self, path, X, logits):
+    '''hook constructor
+
+    Args:
+        filename: where the model will be saved
+        variables: the variables that will be saved'''
+
+    self.path = path
+    self.X = X
+    self.logits = logits
+
+  def end(self, session):
+    '''this will be run at session closing'''
+    print('Saving model...')
+    session.graph._unsafe_unfinalize()
+    tf.saved_model.simple_save(
+        session,
+        self.path,
+        inputs={"X": self.X},
+        outputs={"logits": self.logits}
+      )
+    print('Model saved!')
+
 FLAGS = None
 
 n_vars = 3
@@ -101,7 +127,9 @@ def main(_):
           loss, global_step=global_step)
 
     # The StopAtStepHook handles stopping after running given steps.
-    hooks=[tf.train.StopAtStepHook(last_step=1000)]
+    # X = mon_sess.graph.get_tensor_by_name('IteratorGetNext' + ':0')
+    # logits = mon_sess.graph.get_tensor_by_name('mlp/logits/add' + ':0')
+    hooks=[tf.train.StopAtStepHook(last_step=1000), SaveAtEnd("gs://demo-dino2/1", X, logits)]
 
     # The MonitoredTrainingSession takes care of session initialization,
     # restoring from a checkpoint, saving to a checkpoint, and closing when done
@@ -110,46 +138,59 @@ def main(_):
                                            is_chief=(task_index == 0),
                                            hooks=hooks) as mon_sess:
       print('Training...')
+      step = 0
       while not mon_sess.should_stop():
         # Run a training step asynchronously.
         # mon_sess.run handles AbortedError in case of preempted PS.
         mon_sess.run(train_op)
-        print('[{}:{}] loss:{} acc:{}'.format(job_name, task_index, mon_sess.run(loss), mon_sess.run(accuracy)))
+        step = step + 1
+        if (not mon_sess.should_stop()):
+          print('[{}:{}] acc:{}'.format(job_name, task_index, mon_sess.run(accuracy)))
 
       print('Training finished')
-      if mon_sess.is_chief():
-        export_path = FLAGS.gcs_path
-        X = mon_sess.graph.get_tensor_by_name('IteratorGetNext' + ':0')
-        #print(X)
-        logits = mon_sess.graph.get_tensor_by_name('mlp/logits/add' + ':0')
-        #print(logits)
-
+      # if task_index == 0:
+        # print('Chief preparing to save...')
+        # export_path = "gs://demo-dino2/1"
+        # X = mon_sess.graph.get_tensor_by_name('IteratorGetNext' + ':0')
+        # logits = mon_sess.graph.get_tensor_by_name('mlp/logits/add' + ':0')
+        
+        # mon_sess.graph._unsafe_unfinalize()
+        # tf.saved_model.simple_save(
+        #   mon_sess,
+        #   export_path,
+        #   inputs={"X": X},
+        #   outputs={"logits": logits}
+        # )
+        
         #print('\n Tensors info')
-        model_input = tf.saved_model.build_tensor_info(X)
+        # model_input = tf.saved_model.build_tensor_info(X)
         #print(model_input)
-        model_output = tf.saved_model.build_tensor_info(logits)
+        # model_output = tf.saved_model.build_tensor_info(logits)
         #print(model_output)
 
-        print('\n Signature')
+        # print('Signature')
         # Create a signature definition for tfserving
-        signature_definition = tf.saved_model.signature_def_utils.build_signature_def(
-            inputs={'X': model_input},
-            outputs={'logits': model_output},
-            method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME)
-        print(signature_definition)
+        # signature_definition = tf.saved_model.signature_def_utils.build_signature_def(
+        #     inputs={'X': model_input},
+        #     outputs={'logits': model_output},
+        #     method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME)
+        # print(signature_definition)
 
-        builder = tf.saved_model.Builder.SavedModelBuilder(export_path)
+        # builder = tf.saved_model.Builder(export_path)
 
-        builder.add_meta_graph_and_variables(
-            sess, [tf.saved_model.tag_constants.SERVING],
-            signature_def_map={
-                tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
-                    signature_definition
-            })
+        # print('\n Adding meta graph and variables')
+        #mon_sess.graph._unsafe_unfinalize()
+        # builder.add_meta_graph_and_variables(
+        #     mon_sess, [tf.saved_model.tag_constants.SERVING],
+        #     signature_def_map={
+        #         tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
+        #             signature_definition
+        #     })
 
         # Save the model so we can serve it with a model server :)
-        builder.save()
-        print('saved_model done!')
+        # print('Saving...')
+        # builder.save()
+        # print('Saved_model done!')
 
 
 if __name__ == "__main__":

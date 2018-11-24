@@ -11,7 +11,12 @@ WORKDIR /app
 # Installing dependencies with pip
 RUN pip3 install tensorflow numpy pandas
 
-# Copy files
-ADD *.csv train_kubeflow_save_gcs.py /app/
+RUN pip3 --no-cache-dir install \
+        google-cloud-storage
 
-CMD python3 train_kubeflow_save_gcs.py
+ENV GOOGLE_APPLICATION_CREDENTIALS "/app/key.json"
+
+# Copy files
+ADD *.csv train_kubeflow_save_gcs.py key.json /app/
+
+CMD python3 train_kubeflow_save_gcs.py --gcs_path gcs://demo-dino2
